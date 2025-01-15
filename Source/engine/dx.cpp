@@ -9,7 +9,9 @@
 #include <cstdint>
 
 #include "controls/plrctrls.h"
-#include "engine.h"
+#include "engine/render/primitive_render.hpp"
+#include "headless_mode.hpp"
+#include "init.h"
 #include "options.h"
 #include "utils/display.h"
 #include "utils/log.hpp"
@@ -70,7 +72,7 @@ bool CanRenderDirectlyToOutputSurface()
  */
 void LimitFrameRate()
 {
-	if (!*sgOptions.Graphics.limitFPS)
+	if (*GetOptions().Graphics.frameRateControl != FrameRateControl::CPUSleep)
 		return;
 	static uint32_t frameDeadline;
 	uint32_t tc = SDL_GetTicks() * 1000;
@@ -114,7 +116,8 @@ void dx_cleanup()
 	RendererTextureSurface = nullptr;
 #ifndef USE_SDL1
 	texture = nullptr;
-	if (*sgOptions.Graphics.upscale)
+	FreeVirtualGamepadTextures();
+	if (*GetOptions().Graphics.upscale)
 		SDL_DestroyRenderer(renderer);
 #endif
 	SDL_DestroyWindow(ghMainWnd);
@@ -246,7 +249,7 @@ void RenderPresent()
 		}
 		SDL_RenderPresent(renderer);
 
-		if (!*sgOptions.Graphics.vSync) {
+		if (*GetOptions().Graphics.frameRateControl != FrameRateControl::VerticalSync) {
 			LimitFrameRate();
 		}
 	} else {
