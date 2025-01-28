@@ -6,12 +6,11 @@
 #include <memory>
 #include <type_traits>
 
+#include <SDL_endian.h>
 #include <libmpq/mpq.h>
 
 #include "appfat.h"
 #include "encrypt.h"
-#include "engine.h"
-#include "utils/endian.hpp"
 #include "utils/file_util.h"
 #include "utils/language.h"
 #include "utils/log.hpp"
@@ -94,7 +93,7 @@ MpqWriter::MpqWriter(const char *path)
 	LogVerbose("Opening {}", path);
 	std::string error;
 	bool exists = FileExists(path);
-	const char *mode = "wb";
+	const char *mode = "wbx";
 	if (exists) {
 		mode = "r+b";
 		std::uintmax_t fileSize;
